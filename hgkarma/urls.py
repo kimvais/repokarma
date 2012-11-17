@@ -21,17 +21,17 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-from django.conf.urls import patterns, include, url
-
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
-from stats import views
+
+from django.conf.urls import patterns, include, url
+import views
 
 urlpatterns = patterns(
     '',
-    url(r'^$', views.Changes.as_view(), name="log")
+    url(r'^$', views.Changes.as_view(), name="log"),
+    url(r'^users/$', views.Users.as_view(), name="users")
     # Examples:
     # url(r'^$', 'hgkarma.views.home', name='home'),
     # url(r'^hgkarma/', include('hgkarma.foo.urls')),

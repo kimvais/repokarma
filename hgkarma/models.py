@@ -31,8 +31,8 @@ class EMail(models.Model):
 
 
 class HGUser(models.Model):
-    username = models.CharField(max_length=64)
-    real_name = models.CharField(max_length=512)
+    username = models.CharField(max_length=64, unique=True)
+    real_name = models.CharField(max_length=512, null=True)
     class Meta:
         app_label = "hgkarma"
 

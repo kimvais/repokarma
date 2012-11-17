@@ -2,12 +2,17 @@
 <body>
 <table>
     <thead>
+    <tr>
+        <th>Username</th>
+        <th>Real name</th>
+    </tr>
 
     </thead>
     <tbody>
     {% for user in users %}
         <tr>
-        <td>{{ user.name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.real_name }}</td>
         </tr>
     {% endfor %}
     </tbody>

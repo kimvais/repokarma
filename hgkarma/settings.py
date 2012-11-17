@@ -171,4 +171,5 @@ LOGGING = {
     }
 }
 
-REPO_PATH = '/Users/kimvais/ssh/hg/keymanager/'
+#REPO_PATH = '/Users/kimvais/ssh/hg/keymanager/'
+REPO_PATH = '/Users/kimvais/hg/hgkarma/'

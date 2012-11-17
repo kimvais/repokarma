@@ -22,17 +22,20 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 from datetime import datetime
+import re
 from django.conf import settings
 
 from django.core.exceptions import ObjectDoesNotExist
 from mercurial import hg, ui
-from .models import ChangeSet, HGUser
+import models
 
 
 try:
-    start = ChangeSet.objects.latest().pk
+    start = models.ChangeSet.objects.latest().pk
 except ObjectDoesNotExist:
     start = 0
+
+user_with_email_re = re.compile('^(.+) <(.+)>')
 
 repo = hg.repository(ui.ui(), settings.REPO_PATH)
 tip = repo.revs("default")[0]
@@ -40,7 +43,21 @@ print("Fetching revisions {0}-{1}".format(start, tip))
 for rev in range(start, tip):
     adds = removes = 0
     ctx = repo.changectx(rev)
-    user, _ = HGUser.objects.get_or_create(name=ctx.user())
+    ctx_user = ctx.user()
+    m = user_with_email_re.match(ctx_user)
+    if m:
+        realname = m.group(1)
+        email = m.group(2)
+    else:
+        realname = None
+        email = ctx_user
+    username = email.split('@')[0]
+    user, _ = models.HGUser.objects.get_or_create(username=username)
+    if user.real_name is None:
+        user.real_name = realname
+        user.save()
+    email_o, _ = models.EMail.objects.get_or_create(address=email, user=user)
+
     timestamp = datetime.fromtimestamp(ctx.date()[0]).isoformat()
     if len(ctx.parents()) > 1:
         print("skipping merge {0}".format(rev))
@@ -63,7 +80,7 @@ for rev in range(start, tip):
                 adds += 1
             elif line.startswith('-'):
                 removes += 1
-    changeset = ChangeSet(revision=rev,
+    changeset = models.ChangeSet(revision=rev,
                           timestamp=timestamp,
                           user=user,
                           lines_added=adds,
@@ -71,4 +88,4 @@ for rev in range(start, tip):
                           files=filecount,
                           description=ctx.description())
     changeset.save()
-    print("{0},'{1}',{2},{3}".format(timestamp, user.name, adds, removes))
+    print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds, removes))

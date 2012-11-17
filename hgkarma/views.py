@@ -21,7 +21,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from django.views.generic import ListView
-from stats import models
+import models
 
 class Changes(ListView):
     model = models.ChangeSet
