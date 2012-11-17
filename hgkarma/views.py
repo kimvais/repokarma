@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
@@ -19,30 +20,20 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from django.views.generic import ListView
+from stats import models
 
-from django.db import models
+class Changes(ListView):
+    model = models.ChangeSet
+    template_name = "changelog.html"
 
-class HGUser(models.Model):
-    name = models.CharField(max_length=1000)
+    def get_context_object_name(self, object_list):
+        return "revision"
 
-    class Meta:
-        app_label = "stats"
+class Users(ListView):
+    model = models.HGUser
+    template_name = "userlist.html"
 
-
-class ChangeSet(models.Model):
-    revision = models.IntegerField(primary_key=True)
-    timestamp = models.DateTimeField()
-    user = models.ForeignKey(HGUser)
-    files = models.IntegerField()
-    lines_added = models.IntegerField()
-    lines_removed = models.IntegerField()
-    description = models.TextField()
-
-    @property
-    def net_change(self):
-        return self.lines_added - self.lines_removed
-
-    class Meta:
-        app_label = "stats"
-        get_latest_by = 'timestamp'
+    def get_context_object_name(self, object_list):
+        return 'users'
 

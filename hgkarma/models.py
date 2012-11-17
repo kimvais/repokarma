@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
@@ -20,3 +19,38 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+from django.db import models
+
+
+class EMail(models.Model):
+    address = models.CharField(max_length=512)
+    user = models.ForeignKey("hgkarma.HGUser", related_name="email")
+    class Meta:
+        app_label = "hgkarma"
+
+
+class HGUser(models.Model):
+    username = models.CharField(max_length=64)
+    real_name = models.CharField(max_length=512)
+    class Meta:
+        app_label = "hgkarma"
+
+
+class ChangeSet(models.Model):
+    revision = models.IntegerField(primary_key=True)
+    timestamp = models.DateTimeField()
+    user = models.ForeignKey(HGUser)
+    files = models.IntegerField()
+    lines_added = models.IntegerField()
+    lines_removed = models.IntegerField()
+    description = models.TextField()
+
+    @property
+    def net_change(self):
+        return self.lines_added - self.lines_removed
+
+    class Meta:
+        app_label = "hgkarma"
+        get_latest_by = 'timestamp'
+
