@@ -27,8 +27,11 @@ from django.conf.urls import patterns, include, url
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
+from stats import views
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
+    url(r'^$', views.Changes.as_view(), name="log")
     # Examples:
     # url(r'^$', 'hgkarma.views.home', name='home'),
     # url(r'^hgkarma/', include('hgkarma.foo.urls')),

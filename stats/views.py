@@ -20,3 +20,12 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from django.views.generic import ListView
+from stats import models
+
+class Changes(ListView):
+    model = models.ChangeSet
+    template_name = "changelog.html"
+
+    def get_context_object_name(self, object_list):
+        return "revision"

@@ -38,6 +38,10 @@ class ChangeSet(models.Model):
     lines_removed = models.IntegerField()
     description = models.TextField()
 
+    @property
+    def net_change(self):
+        return self.lines_added - self.lines_removed
+
     class Meta:
         app_label = "stats"
         get_latest_by = 'timestamp'

@@ -1,0 +1,58 @@
+<html>
+<body>
+<table>
+<thead>
+<tr>
+<th>
+    Revision
+</th>
+    <th>
+        Timestamp
+    </th>
+    <th>
+        Net change
+    </th>
+    <th>
+        Lines added
+    </th>
+    <th>
+        Lines removed
+    </th>
+    <th>
+        User
+    </th>
+    <th>
+        Description
+    </th>
+</tr>
+</thead>
+    <tbody>
+    {% for cs in revision %}
+        <tr>
+            <th>
+                {{ cs.revision }}
+            </th>
+            <td>
+                {{ cs.timestamp|date:'c' }}
+            </td>
+            <td>
+                {{ cs.net_change }}
+            </td>
+            <td>
+                {{ cs.lines_added }}
+            </td>
+            <td>
+                {{ cs.lines_removed }}
+            </td>
+            <td>
+                {{ cs.user.name }}
+            </td>
+            <td>
+                {{ cs.description }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
