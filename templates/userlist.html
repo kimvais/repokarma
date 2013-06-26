@@ -1,7 +1,9 @@
-<html>
-<body>
-<table>
-    <thead>
+{% extends 'base.html' %}
+{% block content %}
+    <div class="row-fluid">
+
+        <table class="table-bordered span12">
+        <thead>
     <tr>
         <th>Username</th>
         <th>Real name</th>
@@ -17,5 +19,5 @@
     {% endfor %}
     </tbody>
 </table>
-</body>
-</html>
+    </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
+# Copyright © 2012-2013 Kimmo Parviainen-Jalanko <k@77.fi>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -20,25 +20,3 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
-
-from django.conf.urls import patterns, include, url
-import views
-
-urlpatterns = patterns(
-    '',
-    url(r'^$', views.Changes.as_view(), name="log"),
-    url(r'^users/$', views.Users.as_view(), name="users")
-    # Examples:
-    # url(r'^$', 'hgkarma.views.home', name='home'),
-    # url(r'^hgkarma/', include('hgkarma.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
-)

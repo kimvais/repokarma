@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
@@ -20,37 +21,24 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from django.db import models
+# Uncomment the next two lines to enable the admin:
+# from django.contrib import admin
+# admin.autodiscover()
 
+from django.conf.urls import patterns, include, url
+import views
 
-class EMail(models.Model):
-    address = models.CharField(max_length=512)
-    user = models.ForeignKey("hgkarma.HGUser", related_name="email")
-    class Meta:
-        app_label = "hgkarma"
+urlpatterns = patterns(
+    '',
+    url(r'^$', views.Changes.as_view(), name="log"),
+    url(r'^users/$', views.Users.as_view(), name="users")
+    # Examples:
+    # url(r'^$', 'repokarma.views.home', name='home'),
+    # url(r'^repokarma/', include('repokarma.foo.urls')),
 
+    # Uncomment the admin/doc line below to enable admin documentation:
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-class HGUser(models.Model):
-    username = models.CharField(max_length=64, unique=True)
-    real_name = models.CharField(max_length=512, null=True)
-    class Meta:
-        app_label = "hgkarma"
-
-
-class ChangeSet(models.Model):
-    revision = models.IntegerField(primary_key=True)
-    timestamp = models.DateTimeField()
-    user = models.ForeignKey(HGUser)
-    files = models.IntegerField()
-    lines_added = models.IntegerField()
-    lines_removed = models.IntegerField()
-    description = models.TextField()
-
-    @property
-    def net_change(self):
-        return self.lines_added - self.lines_removed
-
-    class Meta:
-        app_label = "hgkarma"
-        get_latest_by = 'timestamp'
-
+    # Uncomment the next line to enable the admin:
+    # url(r'^admin/', include(admin.site.urls)),
+)

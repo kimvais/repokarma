@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
+# Copyright © 2012-2013 Kimmo Parviainen-Jalanko <k@77.fi>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Django settings for hgkarma project.
+# Django settings for karma project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -35,7 +35,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2',
-        'NAME': '/Users/kimvais/hg/hgkarma/data.sqlite3',                      # Or path to database
+        'NAME': '/Users/kimvais/git/hgkarma/data.sqlite3',                      # Or path to database
         # file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -80,7 +80,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = '/Users/kimvais/git/hgkarma/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -121,12 +121,12 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'hgkarma.urls'
+ROOT_URLCONF = 'repokarma.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'hgkarma.wsgi.application'
+WSGI_APPLICATION = 'repokarma.wsgi.application'
 
-TEMPLATE_DIRS = ('/Users/kimvais/hg/hgkarma/templates',)
+TEMPLATE_DIRS = ('/Users/kimvais/git/hgkarma/templates',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -139,7 +139,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'hgkarma',
+    'repokarma',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -171,5 +171,6 @@ LOGGING = {
     }
 }
 
-#REPO_PATH = '/Users/kimvais/ssh/hg/keymanager/'
-REPO_PATH = '/Users/kimvais/hg/hgkarma/'
+#REPO_PATH = '/Users/kimvais/ssh//keymanager/'
+REPO_PATH = '/Users/kimvais/hg/repokarma/'
+TEMPLATE_CONTEXT_PROCESSORS = ['repokarma.context_processors.base']

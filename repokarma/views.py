@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2012 Kimmo Parviainen-Jalanko <k@77.fi>
+# Copyright © 2012-2013 Kimmo Parviainen-Jalanko <k@77.fi>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),

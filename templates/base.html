@@ -1,0 +1,33 @@
+<html>
+<head>
+
+    <link href="//bootswatch.com/cerulean/bootstrap.css"
+          rel="stylesheet">
+</head>
+<body>
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<div class="container-fluid">
+                 <div class="demo-headline">
+        <h1 class="demo-logo">
+            Repokarma
+            <small> dashboard for {{ repolocation }}</small>
+        </h1>
+    </div>
+
+
+    {% block navbar %}
+        <div class="navbar">
+            <div class="navbar-inner">
+                <ul class="nav">
+                    <li><a href="{% url 'log' %}">Changelog</a></li>
+                    <li><a href="{% url 'users' %}">Users</a></li>
+                </ul>
+            </div>
+
+        </div>
+    {% endblock %}
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+</html>
