@@ -1,3 +1,4 @@
+# _*_ coding: utf-8 -*-
 # Copyright © 2013 Kimmo Parviainen-Jalanko <k@77.fi>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a

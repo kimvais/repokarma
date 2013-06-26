@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="span12">
+        <h1>
+            @{{ changeset.rev }}: {{ changeset }}
+        </h1>
+        <dl>
+            <dt>
+                ID
+            </dt>
+            <dd>
+                {{ changeset.hex }}
+            </dd>
+            <dt>
+                Files modified
+            </dt>
+            <dd>
+                <ul>
+                    {% for file in changeset.files %}
+                        <li>
+                            {{ file }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </dd>
+            {% if changeset.rev > 0 %}
+                <dt>
+                    Parents
+                </dt>
+                <dd>
+                    <ul>
+                        {% for cs in changeset.parents %}
+                            <li>
+                                <a href="{% url 'changeset' rev=cs.rev %}">
+                                    {{ cs }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </dd>
+            {% endif %}
+            {% if changeset.children %}
+            <dt>
+                Children
+            </dt>
+            <dd>
+                <ul>
+                    {% for cs in changeset.children %}
+                        <li>
+                            <a href="{% url 'changeset' rev=cs.rev %}">
+                                {{ cs }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </dd>
+            {% endif %}
+        </dl>
+    </div>
+</div>
+{% endblock %}

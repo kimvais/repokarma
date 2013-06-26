@@ -172,5 +172,5 @@ LOGGING = {
 }
 
 #REPO_PATH = '/Users/kimvais/ssh//keymanager/'
-REPO_PATH = '/Users/kimvais/hg/repokarma/'
+REPO_PATH = '/Users/kimvais/hg/hgkarma/'
 TEMPLATE_CONTEXT_PROCESSORS = ['repokarma.context_processors.base']
