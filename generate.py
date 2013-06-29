@@ -22,83 +22,91 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 from datetime import datetime
+import logging
 import re
 from django.conf import settings
 
 from django.core.exceptions import ObjectDoesNotExist
-from mercurial import hg, ui
+from django.db.models import Max
 from repokarma import models
 
+logger = logging.getLogger(__name__)
+logging.basicConfig()
 
-try:
-    start = models.Commit.objects.latest().pk
-except ObjectDoesNotExist:
-    start = 0
+def sync_mercurial(repo_obj):
+    from mercurial import hg, ui
 
-user_with_email_re = re.compile('^(.+) <(.+)>')
+    repo = hg.repository(ui.ui(), repo_obj.path)
+    try:
+        start = models.Commit.objects.all().aggregate(Max('nodeid'))[
+            'nodeid__max'] + 1
+    except ObjectDoesNotExist:
+        start = 0
+    user_with_email_re = re.compile('^(.+) <(.+)>')
+    tip = repo.revs("default")[0] + 1
+    print("Fetching revisions {0}-{1}".format(start, tip-1))
+    for rev in range(start, tip):
+        adds = removes = 0
+        ctx = repo.changectx(rev)
+        ctx_user = ctx.user()
+        m = user_with_email_re.match(ctx_user)
+        if m:
+            realname = m.group(1)
+            email = m.group(2)
+        else:
+            realname = None
+            email = ctx_user
+        username = email.split('@')[0]
+        user, _ = models.User.objects.get_or_create(username=username)
+        if user.real_name is None:
+            user.real_name = realname
+            user.save()
+        email_o, created = models.EMail.objects.get_or_create(address=email,
+                                                              user=user)
+        if created:
+            email_o.save()
 
-repo = hg.repository(ui.ui(), settings.REPO_PATH)
-
-repo_obj, created = models.Repository.objects.get_or_create(
-    repository_type="mercurial",
-    path=settings.REPO_PATH,
-    )
-if created:
-    repo_obj.save()
-
-tip = repo.revs("default")[0] + 1
-print("Fetching revisions {0}-{1}".format(start, tip))
-for rev in range(start, tip):
-    adds = removes = 0
-    ctx = repo.changectx(rev)
-    ctx_user = ctx.user()
-    m = user_with_email_re.match(ctx_user)
-    if m:
-        realname = m.group(1)
-        email = m.group(2)
-    else:
-        realname = None
-        email = ctx_user
-    username = email.split('@')[0]
-    user, _ = models.User.objects.get_or_create(username=username)
-    if user.real_name is None:
-        user.real_name = realname
-        user.save()
-    email_o, created = models.EMail.objects.get_or_create(address=email,
-                                                          user=user)
-    if created:
-        email_o.save()
-
-    timestamp = datetime.fromtimestamp(ctx.date()[0]).isoformat()
-    if len(ctx.parents()) > 1:
-        print("skipping merge {0}".format(rev))
-        continue
-    for filecount, diff in enumerate(ctx.diff()):
-        diffcmd, diffdata = diff.split('\n', 1)
-        #print diffcmd
-        if "3rdparty" in diffcmd:
-            print("skipping 3rd party component {0}".format(
-                diffcmd.rsplit(' ', 1)[-1]))
+        timestamp = datetime.fromtimestamp(ctx.date()[0]).isoformat()
+        if len(ctx.parents()) > 1:
+            print("skipping merge {0}".format(rev))
             continue
-            #print fromfile.rsplit(' ', 1)[-1]
-        #print tofile.rsplit(' ', 1)[-1]
-        for line in diffdata:
-            if line.startswith('Binary'):
-                print("Skipping binary file".format(
+        for filecount, diff in enumerate(ctx.diff()):
+            diffcmd, diffdata = diff.split('\n', 1)
+            #print diffcmd
+            if "3rdparty" in diffcmd:
+                print("skipping 3rd party component {0}".format(
                     diffcmd.rsplit(' ', 1)[-1]))
-                break
-            if line.startswith('+'):
-                adds += 1
-            elif line.startswith('-'):
-                removes += 1
-    changeset = models.Commit(id=ctx.hex(),
-                              nodeid=rev,
-                              timestamp=timestamp,
-                              user=user,
-                              lines_added=adds,
-                              lines_removed=removes,
-                              files=filecount,
-                              repository=repo_obj,
-                              description=ctx.description())
-    changeset.save()
-    print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds, removes))
+                continue
+                #print fromfile.rsplit(' ', 1)[-1]
+            #print tofile.rsplit(' ', 1)[-1]
+            for line in diffdata:
+                if line.startswith('Binary'):
+                    print("Skipping binary file".format(
+                        diffcmd.rsplit(' ', 1)[-1]))
+                    break
+                if line.startswith('+'):
+                    adds += 1
+                elif line.startswith('-'):
+                    removes += 1
+        changeset = models.Commit(id=ctx.hex(),
+                                  nodeid=rev,
+                                  timestamp=timestamp,
+                                  user=user,
+                                  lines_added=adds,
+                                  lines_removed=removes,
+                                  files=filecount,
+                                  repository=repo_obj,
+                                  description=ctx.description())
+        changeset.save()
+        print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds,
+                                         removes))
+
+if __name__ == '__main__':
+    repo_obj, created = models.Repository.objects.get_or_create(
+        repository_type=settings.REPO_TYPE,
+        path=settings.REPO_PATH,
+        )
+    if created:
+        repo_obj.save()
+    sync_func = locals().get('sync_{0}'.format(settings.REPO_TYPE))
+    sync_func(repo_obj)

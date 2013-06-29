@@ -175,7 +175,11 @@ LOGGING = {
     }
 }
 
+TEMPLATE_CONTEXT_PROCESSORS = ['repokarma.context_processors.base']
+
 #REPO_PATH = '/Users/kimvais/ssh/hg/keymanager/'
 #REPO_PATH = '/Users/kimvais/hg/repokarma/'
+REPO_TYPE = 'mercurial'
 REPO_PATH = '/tmp/test'
-TEMPLATE_CONTEXT_PROCESSORS = ['repokarma.context_processors.base']
+#REPO_TYPE = 'git'
+#REPO_PATH = '.'
