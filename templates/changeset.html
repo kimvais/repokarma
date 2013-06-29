@@ -34,7 +34,7 @@
                         <ul>
                             {% for cs in changeset.parents %}
                                 <li>
-                                    <a href="{% url 'changeset' id=cs.rev %}">
+                                    <a href="{% url 'commit' rev=cs %}">
                                         {{ cs }}
                                     </a>
                                 </li>
@@ -50,11 +50,9 @@
                         <ul>
                             {% for cs in changeset.children %}
                                 <li>
-                                {% comment %}
-                                    <a href="{% url 'commit' id=cs.rev %}">
+                                    <a href="{% url 'commit' rev=cs %}">
                                         {{ cs }}
                                     </a>
-                                    {% endcomment %}
                                 </li>
                             {% endfor %}
                         </ul>

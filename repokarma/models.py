@@ -88,6 +88,16 @@ class Commit(models.Model):
     def filecount(self):
         return len(self.context.files)
 
+    @property
+    def parents(self):
+        if self.repository.repository_type == "mercurial":
+            return [c.hex() for c in self.context.parents()]
+
+    @property
+    def children(self):
+        if self.repository.repository_type == "mercurial":
+            return [c.hex() for c in self.context.children()]
+
     class Meta:
         app_label = "repokarma"
         get_latest_by = 'timestamp'
