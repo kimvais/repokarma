@@ -32,8 +32,8 @@
                     {% for cs in revision %}
                         <tr>
                             <th>
-                                <a href="{% url 'changeset' rev=cs.revision %}">
-                                {{ cs.revision }}
+                                <a href="{% url 'commit' rev=cs.pk %}">
+                                {{ cs.id }}
                                 </a>
                             </th>
                             <td>

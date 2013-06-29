@@ -31,13 +31,21 @@ from repokarma import models
 
 
 try:
-    start = models.ChangeSet.objects.latest().pk
+    start = models.Commit.objects.latest().pk
 except ObjectDoesNotExist:
     start = 0
 
 user_with_email_re = re.compile('^(.+) <(.+)>')
 
 repo = hg.repository(ui.ui(), settings.REPO_PATH)
+
+repo_obj, created = models.Repository.objects.get_or_create(
+    repository_type="mercurial",
+    path=settings.REPO_PATH,
+    )
+if created:
+    repo_obj.save()
+
 tip = repo.revs("default")[0] + 1
 print("Fetching revisions {0}-{1}".format(start, tip))
 for rev in range(start, tip):
@@ -52,12 +60,12 @@ for rev in range(start, tip):
         realname = None
         email = ctx_user
     username = email.split('@')[0]
-    user, _ = models.HGUser.objects.get_or_create(username=username)
+    user, _ = models.User.objects.get_or_create(username=username)
     if user.real_name is None:
         user.real_name = realname
         user.save()
     email_o, created = models.EMail.objects.get_or_create(address=email,
-                                                      user=user)
+                                                          user=user)
     if created:
         email_o.save()
 
@@ -83,12 +91,14 @@ for rev in range(start, tip):
                 adds += 1
             elif line.startswith('-'):
                 removes += 1
-    changeset = models.ChangeSet(revision=rev,
-                                 timestamp=timestamp,
-                                 user=user,
-                                 lines_added=adds,
-                                 lines_removed=removes,
-                                 files=filecount,
-                                 description=ctx.description())
+    changeset = models.Commit(id=ctx.hex(),
+                              nodeid=rev,
+                              timestamp=timestamp,
+                              user=user,
+                              lines_added=adds,
+                              lines_removed=removes,
+                              files=filecount,
+                              repository=repo_obj,
+                              description=ctx.description())
     changeset.save()
     print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds, removes))

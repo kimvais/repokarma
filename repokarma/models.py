@@ -21,16 +21,17 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from django.db import models
+from mercurial import hg, ui
 
 
 class EMail(models.Model):
     address = models.CharField(max_length=512)
-    user = models.ForeignKey("repokarma.HGUser", related_name="email")
+    user = models.ForeignKey("repokarma.User", related_name="email")
     class Meta:
         app_label = "repokarma"
 
 
-class HGUser(models.Model):
+class User(models.Model):
     username = models.CharField(max_length=64, unique=True)
     real_name = models.CharField(max_length=512, null=True)
     class Meta:
@@ -43,21 +44,58 @@ class HGUser(models.Model):
         return self.username
 
 
-class ChangeSet(models.Model):
-    revision = models.IntegerField(primary_key=True)
+class Repository(models.Model):
+    path = models.CharField(max_length=1024)
+    repository_type = models.CharField(max_length=32)
+
+    class Meta:
+        unique_together = ('path', 'repository_type')
+
+
+class Commit(models.Model):
+    id = models.CharField(max_length=40, primary_key=True)
+    repository = models.ForeignKey('repokarma.Repository')
+    nodeid = models.IntegerField(null=True)
     timestamp = models.DateTimeField()
-    user = models.ForeignKey(HGUser)
-    files = models.IntegerField()
+    user = models.ForeignKey(User)
     lines_added = models.IntegerField()
     lines_removed = models.IntegerField()
     description = models.TextField()
+
+    def __init__(self, *args, **kwargs):
+        super(Commit, self).__init__(*args, **kwargs)
+        self.diffs = None
+        self.context = None
+        if self.pk:
+            self._get_hg_changeset()
+
+    def _get_hg_changeset(self):
+        repo = hg.repository(ui.ui(), self.repository.path)
+        self.context = repo.changectx(self.pk)
+        self.diffs = list()
+        for diff in self.context.diff():
+            self.diffs.append(Diff(diff))
 
     @property
     def net_change(self):
         return self.lines_added - self.lines_removed
 
+    @property
+    def files(self):
+        return self.context.files
+
+    @property
+    def filecount(self):
+        return len(self.context.files)
+
     class Meta:
         app_label = "repokarma"
         get_latest_by = 'timestamp'
-        ordering = ['-revision']
+        ordering = ['-timestamp']
 
+
+class Diff(object):
+    def __init__(self, data):
+        self.data = data
+        self.cmd = data.split('\n', 1)[0]
+        self.filename = self.cmd.rsplit(' ', 1)[-1]

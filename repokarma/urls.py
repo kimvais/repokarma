@@ -30,10 +30,10 @@ import views
 
 urlpatterns = patterns(
     '',
-    url(r'^$', views.Changes.as_view(), name="log"),
+    url(r'^$', views.ChangeLog.as_view(), name="log"),
     url(r'^users/$', views.Users.as_view(), name="users"),
-    url(r'^changeset/(?P<rev>-?\d+)', views.ChangeSet.as_view(),
-        name='changeset')
+    url(r'^commit/(?P<rev>[0-9a-f]+)', views.Commit.as_view(),
+        name='commit')
     # Examples:
     # url(r'^$', 'repokarma.views.home', name='home'),
     # url(r'^repokarma/', include('repokarma.foo.urls')),

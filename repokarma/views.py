@@ -22,18 +22,15 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from django.conf import settings
 from django.views.generic import ListView, TemplateView
-from mercurial import hg, ui
-from . import models
 from infinite_pagination import InfinitePaginator
 
-class Diff(object):
-    def __init__(self, data):
-        self.data = data
-        self.cmd = data.split('\n', 1)[0]
-        self.filename = self.cmd.rsplit(' ', 1)[-1]
+from mercurial import hg, ui
+from . import models
+from repokarma.models import Diff
 
-class Changes(ListView):
-    model = models.ChangeSet
+
+class ChangeLog(ListView):
+    model = models.Commit
     template_name = "changelog.html"
     paginator_class = InfinitePaginator
     paginate_by = 30
@@ -42,22 +39,27 @@ class Changes(ListView):
         return "revision"
 
 class Users(ListView):
-    model = models.HGUser
+    model = models.User
     template_name = "userlist.html"
 
     def get_context_object_name(self, object_list):
         return 'users'
 
-class ChangeSet(TemplateView):
+
+class Commit(TemplateView):
     template_name = "changeset.html"
-    def get_context_data(self, **kwargs):
-        ctx = super(TemplateView, self).get_context_data(**kwargs)
+
+    def get_hg_changeset(self):
         repo = hg.repository(ui.ui(), settings.REPO_PATH)
         changeset = repo.changectx(self.rev)
-        ctx['diffs'] = list()
+        diffs = list()
         for diff in changeset.diff():
-            ctx['diffs'].append(Diff(diff))
-        ctx['changeset'] = changeset
+            diffs.append(Diff(diff))
+        return changeset, diffs
+
+    def get_context_data(self, **kwargs):
+        ctx = super(TemplateView, self).get_context_data(**kwargs)
+        ctx['changeset'] = models.Commit.objects.get(pk=self.rev)
         return ctx
 
     def dispatch(self, request, *args, **kwargs):

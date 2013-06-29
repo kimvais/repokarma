@@ -4,7 +4,7 @@
     <div class="row">
         <div class="span12">
             <h1><a id="top">
-                @{{ changeset.rev }}: {{ changeset }}
+                @{{ changeset.id }}: {{ changeset }}
             </a>
             </h1>
             <dl>
@@ -26,7 +26,7 @@
                         {% endfor %}
                     </ul>
                 </dd>
-                {% if changeset.rev > 0 %}
+                {% if changeset.id > 0 %}
                     <dt>
                         Parents
                     </dt>
@@ -34,7 +34,7 @@
                         <ul>
                             {% for cs in changeset.parents %}
                                 <li>
-                                    <a href="{% url 'changeset' rev=cs.rev %}">
+                                    <a href="{% url 'changeset' id=cs.rev %}">
                                         {{ cs }}
                                     </a>
                                 </li>
@@ -50,9 +50,11 @@
                         <ul>
                             {% for cs in changeset.children %}
                                 <li>
-                                    <a href="{% url 'changeset' rev=cs.rev %}">
+                                {% comment %}
+                                    <a href="{% url 'commit' id=cs.rev %}">
                                         {{ cs }}
                                     </a>
+                                    {% endcomment %}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -61,7 +63,7 @@
             </dl>
         </div>
     </div>
-    {% for diff in diffs %}
+    {% for diff in changeset.diffs %}
         <div class="row-fluid">
             <div class="span12">
             <h2><a id="{{ diff.filename }}">{{ diff.filename }}</a>
