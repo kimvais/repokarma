@@ -35,7 +35,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2',
-        'NAME': '/Users/kimvais/git/hgkarma/data.sqlite3',                      # Or path to database
+        'NAME': 'data.sqlite3',                      # Or path to database
         # file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -58,7 +58,7 @@ SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
-USE_I18N = True
+USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
@@ -80,7 +80,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/Users/kimvais/git/hgkarma/static/'
+STATIC_ROOT = '/Users/kimvais/git/repokarma/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -91,6 +91,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    '/Users/kimvais/git/repokarma/repokarma/static/',
 )
 
 # List of finder classes that know how to find static files in
@@ -126,7 +127,7 @@ ROOT_URLCONF = 'repokarma.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'repokarma.wsgi.application'
 
-TEMPLATE_DIRS = ('/Users/kimvais/git/hgkarma/templates',)
+TEMPLATE_DIRS = ('/Users/kimvais/git/repokarma//templates',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -135,6 +136,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'infinite_pagination',
+    'django_pygments',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -171,6 +174,7 @@ LOGGING = {
     }
 }
 
-#REPO_PATH = '/Users/kimvais/ssh//keymanager/'
-REPO_PATH = '/Users/kimvais/hg/hgkarma/'
+#REPO_PATH = '/Users/kimvais/ssh/hg/keymanager/'
+#REPO_PATH = '/Users/kimvais/hg/repokarma/'
+REPO_PATH = '/tmp/test'
 TEMPLATE_CONTEXT_PROCESSORS = ['repokarma.context_processors.base']

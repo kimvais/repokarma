@@ -1,62 +1,76 @@
 {% extends 'base.html' %}
+{% load pygmentify %}
 {% block content %}
-<div class="row">
-    <div class="span12">
-        <h1>
-            @{{ changeset.rev }}: {{ changeset }}
-        </h1>
-        <dl>
-            <dt>
-                ID
-            </dt>
-            <dd>
-                {{ changeset.hex }}
-            </dd>
-            <dt>
-                Files modified
-            </dt>
-            <dd>
-                <ul>
-                    {% for file in changeset.files %}
-                        <li>
-                            {{ file }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </dd>
-            {% if changeset.rev > 0 %}
+    <div class="row">
+        <div class="span12">
+            <h1><a id="top">
+                @{{ changeset.rev }}: {{ changeset }}
+            </a>
+            </h1>
+            <dl>
                 <dt>
-                    Parents
+                    ID
+                </dt>
+                <dd>
+                    {{ changeset.hex }}
+                </dd>
+                <dt>
+                    Files modified
                 </dt>
                 <dd>
                     <ul>
-                        {% for cs in changeset.parents %}
+                        {% for file in changeset.files %}
                             <li>
-                                <a href="{% url 'changeset' rev=cs.rev %}">
-                                    {{ cs }}
-                                </a>
+                                <a href="#{{ file }}">{{ file }}</a>
                             </li>
                         {% endfor %}
                     </ul>
                 </dd>
-            {% endif %}
-            {% if changeset.children %}
-            <dt>
-                Children
-            </dt>
-            <dd>
-                <ul>
-                    {% for cs in changeset.children %}
-                        <li>
-                            <a href="{% url 'changeset' rev=cs.rev %}">
-                                {{ cs }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </dd>
-            {% endif %}
-        </dl>
+                {% if changeset.rev > 0 %}
+                    <dt>
+                        Parents
+                    </dt>
+                    <dd>
+                        <ul>
+                            {% for cs in changeset.parents %}
+                                <li>
+                                    <a href="{% url 'changeset' rev=cs.rev %}">
+                                        {{ cs }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dd>
+                {% endif %}
+                {% if changeset.children %}
+                    <dt>
+                        Children
+                    </dt>
+                    <dd>
+                        <ul>
+                            {% for cs in changeset.children %}
+                                <li>
+                                    <a href="{% url 'changeset' rev=cs.rev %}">
+                                        {{ cs }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dd>
+                {% endif %}
+            </dl>
+        </div>
     </div>
-</div>
+    {% for diff in diffs %}
+        <div class="row-fluid">
+            <div class="span12">
+            <h2><a id="{{ diff.filename }}">{{ diff.filename }}</a>
+            </h2><a href="#top">top &uarr;</a>
+                {% pygment %}
+                <pre lang="diff">{{ diff.data }}</pre>
+                {% endpygment %}
+            </div>
+        </div>
+
+    {% endfor %}
 {% endblock %}

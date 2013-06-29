@@ -24,10 +24,19 @@ from django.conf import settings
 from django.views.generic import ListView, TemplateView
 from mercurial import hg, ui
 from . import models
+from infinite_pagination import InfinitePaginator
+
+class Diff(object):
+    def __init__(self, data):
+        self.data = data
+        self.cmd = data.split('\n', 1)[0]
+        self.filename = self.cmd.rsplit(' ', 1)[-1]
 
 class Changes(ListView):
     model = models.ChangeSet
     template_name = "changelog.html"
+    paginator_class = InfinitePaginator
+    paginate_by = 30
 
     def get_context_object_name(self, object_list):
         return "revision"
@@ -45,6 +54,9 @@ class ChangeSet(TemplateView):
         ctx = super(TemplateView, self).get_context_data(**kwargs)
         repo = hg.repository(ui.ui(), settings.REPO_PATH)
         changeset = repo.changectx(self.rev)
+        ctx['diffs'] = list()
+        for diff in changeset.diff():
+            ctx['diffs'].append(Diff(diff))
         ctx['changeset'] = changeset
         return ctx
 

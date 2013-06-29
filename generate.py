@@ -38,7 +38,7 @@ except ObjectDoesNotExist:
 user_with_email_re = re.compile('^(.+) <(.+)>')
 
 repo = hg.repository(ui.ui(), settings.REPO_PATH)
-tip = repo.revs("default")[0]
+tip = repo.revs("default")[0] + 1
 print("Fetching revisions {0}-{1}".format(start, tip))
 for rev in range(start, tip):
     adds = removes = 0
@@ -56,7 +56,10 @@ for rev in range(start, tip):
     if user.real_name is None:
         user.real_name = realname
         user.save()
-    email_o, _ = models.EMail.objects.get_or_create(address=email, user=user)
+    email_o, created = models.EMail.objects.get_or_create(address=email,
+                                                      user=user)
+    if created:
+        email_o.save()
 
     timestamp = datetime.fromtimestamp(ctx.date()[0]).isoformat()
     if len(ctx.parents()) > 1:
@@ -81,11 +84,11 @@ for rev in range(start, tip):
             elif line.startswith('-'):
                 removes += 1
     changeset = models.ChangeSet(revision=rev,
-                          timestamp=timestamp,
-                          user=user,
-                          lines_added=adds,
-                          lines_removed=removes,
-                          files=filecount,
-                          description=ctx.description())
+                                 timestamp=timestamp,
+                                 user=user,
+                                 lines_added=adds,
+                                 lines_removed=removes,
+                                 files=filecount,
+                                 description=ctx.description())
     changeset.save()
     print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds, removes))

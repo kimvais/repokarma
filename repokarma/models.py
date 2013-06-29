@@ -36,6 +36,12 @@ class HGUser(models.Model):
     class Meta:
         app_label = "repokarma"
 
+    @property
+    def name(self):
+        if self.real_name:
+            return self.real_name
+        return self.username
+
 
 class ChangeSet(models.Model):
     revision = models.IntegerField(primary_key=True)
@@ -53,4 +59,5 @@ class ChangeSet(models.Model):
     class Meta:
         app_label = "repokarma"
         get_latest_by = 'timestamp'
+        ordering = ['-revision']
 
