@@ -67,7 +67,15 @@ class Commit(models.Model):
         self.diffs = None
         self.context = None
         if self.pk:
-            self._get_hg_changeset()
+            try:
+                repotype = self.repository.repository_type
+            except Repository.DoesNotExist:
+                repotype = None
+            if repotype == "mercurial":
+                self._get_hg_changeset()
+            elif repotype == 'git':
+                # TODO
+                pass
 
     def _get_hg_changeset(self):
         repo = hg.repository(ui.ui(), self.repository.path)

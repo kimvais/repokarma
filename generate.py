@@ -33,18 +33,31 @@ from repokarma import models
 logger = logging.getLogger(__name__)
 logging.basicConfig()
 
+
+def get_user(email, realname, username):
+    user, _ = models.User.objects.get_or_create(username=username)
+    if user.real_name is None:
+        user.real_name = realname
+        user.save()
+    email_o, created = models.EMail.objects.get_or_create(address=email,
+                                                          user=user)
+    if created:
+        email_o.save()
+    return user
+
+
 def sync_mercurial(repo_obj):
     from mercurial import hg, ui
 
     repo = hg.repository(ui.ui(), repo_obj.path)
     try:
         start = models.Commit.objects.all().aggregate(Max('nodeid'))[
-            'nodeid__max'] + 1
+                    'nodeid__max'] + 1
     except ObjectDoesNotExist:
         start = 0
     user_with_email_re = re.compile('^(.+) <(.+)>')
     tip = repo.revs("default")[0] + 1
-    print("Fetching revisions {0}-{1}".format(start, tip-1))
+    print("Fetching revisions {0}-{1}".format(start, tip - 1))
     for rev in range(start, tip):
         adds = removes = 0
         ctx = repo.changectx(rev)
@@ -57,14 +70,7 @@ def sync_mercurial(repo_obj):
             realname = None
             email = ctx_user
         username = email.split('@')[0]
-        user, _ = models.User.objects.get_or_create(username=username)
-        if user.real_name is None:
-            user.real_name = realname
-            user.save()
-        email_o, created = models.EMail.objects.get_or_create(address=email,
-                                                              user=user)
-        if created:
-            email_o.save()
+        user = get_user(email, realname, username)
 
         timestamp = datetime.fromtimestamp(ctx.date()[0]).isoformat()
         if len(ctx.parents()) > 1:
@@ -101,11 +107,43 @@ def sync_mercurial(repo_obj):
         print("{0},'{1}',{2},{3}".format(timestamp, user.username, adds,
                                          removes))
 
+
+def sync_git(repo):
+    import git
+
+    r = git.Repo(repo.path)
+    for commit in r.iter_commits('master'):
+        try:
+            _ = models.Commit.objects.get(id=commit.hexsha)
+        except models.Commit.DoesNotExist:
+            co = models.Commit()
+            co.pk = commit.hexsha
+            co.nodeid = None
+            co.timestamp = datetime.fromtimestamp(min(commit.authored_date,
+                                                      commit.committed_date))
+            user = get_user(commit.author.email,
+                            commit.author.email.split(
+                                '@')[0],
+                            commit.author.name)
+            co.user = user
+            stats = commit.stats.total
+            co.lines_added = stats['insertions']
+            co.lines_removed = stats['deletions']
+            # co.files = stats['files']
+            co.repository = repo
+            co.description = commit.message
+            co.save()
+            print("{0},'{1}',{2},{3}".format(co.timestamp, user.username,
+                                             co.lines_added,
+                                             co.lines_removed))
+
+
 if __name__ == '__main__':
     repo_obj, created = models.Repository.objects.get_or_create(
+
         repository_type=settings.REPO_TYPE,
         path=settings.REPO_PATH,
-        )
+    )
     if created:
         repo_obj.save()
     sync_func = locals().get('sync_{0}'.format(settings.REPO_TYPE))
