@@ -26,7 +26,7 @@ from infinite_pagination import InfinitePaginator
 
 from mercurial import hg, ui
 from . import models
-from repokarma.models import Diff
+from repokarma.models import HGDiff
 
 
 class ChangeLog(ListView):
@@ -37,6 +37,7 @@ class ChangeLog(ListView):
 
     def get_context_object_name(self, object_list):
         return "revision"
+
 
 class Users(ListView):
     model = models.User
@@ -54,7 +55,7 @@ class Commit(TemplateView):
         changeset = repo.changectx(self.rev)
         diffs = list()
         for diff in changeset.diff():
-            diffs.append(Diff(diff))
+            diffs.append(HGDiff(diff))
         return changeset, diffs
 
     def get_context_data(self, **kwargs):

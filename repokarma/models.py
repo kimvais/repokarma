@@ -22,11 +22,13 @@
 
 from django.db import models
 from mercurial import hg, ui
+import git
 
 
 class EMail(models.Model):
     address = models.CharField(max_length=512)
     user = models.ForeignKey("repokarma.User", related_name="email")
+
     class Meta:
         app_label = "repokarma"
 
@@ -34,6 +36,7 @@ class EMail(models.Model):
 class User(models.Model):
     username = models.CharField(max_length=64, unique=True)
     real_name = models.CharField(max_length=512, null=True)
+
     class Meta:
         app_label = "repokarma"
 
@@ -64,25 +67,36 @@ class Commit(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Commit, self).__init__(*args, **kwargs)
-        self.diffs = None
         self.context = None
         if self.pk:
             try:
-                repotype = self.repository.repository_type
+                self.repotype = self.repository.repository_type
             except Repository.DoesNotExist:
-                repotype = None
-            if repotype == "mercurial":
+                self.repotype = None
+            if self.repotype == "mercurial":
                 self._get_hg_changeset()
-            elif repotype == 'git':
-                # TODO
-                pass
+            elif self.repotype == 'git':
+                self._get_git_changeset()
 
     def _get_hg_changeset(self):
         repo = hg.repository(ui.ui(), self.repository.path)
         self.context = repo.changectx(self.pk)
-        self.diffs = list()
+
+    def _get_git_changeset(self):
+        repo = git.Repo(self.repository.path)
+        self.context = repo
+
+    @property
+    def diffs(self):
+        return getattr(self, '_diff_{0}'.format(self.repotype))(self)
+
+    def _diff_hg(self):
         for diff in self.context.diff():
-            self.diffs.append(Diff(diff))
+            yield HGDiff(diff)
+
+    def _diff_git(self):
+        for diff in self.context.diff(create_patch=True):
+            yield GitDiff(diff)
 
     @property
     def net_change(self):
@@ -112,8 +126,16 @@ class Commit(models.Model):
         ordering = ['-timestamp']
 
 
-class Diff(object):
+class HGDiff(object):
     def __init__(self, data):
         self.data = data
         self.cmd = data.split('\n', 1)[0]
         self.filename = self.cmd.rsplit(' ', 1)[-1]
+
+
+class GitDiff(object):
+    def __init__(self, git_diff):
+        self.data = git_diff.diff
+        self.cmd = 'n/a'
+        self.filaname = git_diff.a_blob.name
+        self.context = git_diff
