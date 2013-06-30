@@ -22,6 +22,7 @@
 import os
 from django.conf import settings
 
+
 def base(request):
     context = dict(repolocation=os.path.abspath(settings.REPO_PATH))
     return context
