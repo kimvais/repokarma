@@ -1,5 +1,5 @@
 sync:
-	@python generate.py
+	@python sync.py
 
 sync-all: clean-db sync
 
