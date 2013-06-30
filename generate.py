@@ -32,6 +32,7 @@ from repokarma import models
 
 logger = logging.getLogger(__name__)
 logging.basicConfig()
+logger.setLevel(logging.INFO)
 
 
 def get_user(email, realname, username):
@@ -136,6 +137,16 @@ def sync_git(repo):
             print("{0},'{1}',{2},{3}".format(co.timestamp, user.username,
                                              co.lines_added,
                                              co.lines_removed))
+    # Update parents
+    for commit in r.iter_commits('master'):
+        co = models.Commit.objects.get(id=commit.hexsha)
+        for parent in co.context.parents:
+            logger.info('Adding {0} as a child to {1}'.format(co.pk, parent))
+            parent_o = models.Commit.objects.get(pk=parent)
+            parent_o._children.add(co)
+            parent_o.save()
+
+
 
 
 if __name__ == '__main__':

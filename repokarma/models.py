@@ -64,6 +64,8 @@ class Commit(models.Model):
     lines_added = models.IntegerField()
     lines_removed = models.IntegerField()
     description = models.TextField()
+    # Required for easy access to children in git
+    _children = models.ManyToManyField('repokarma.Commit')
 
     def __init__(self, *args, **kwargs):
         super(Commit, self).__init__(*args, **kwargs)
@@ -138,6 +140,8 @@ class Commit(models.Model):
     def children(self):
         if self.repotype == "mercurial":
             return [c.hex() for c in self.context.children()]
+        elif self.repotype == "git":
+            return self._children.all().values_list('pk', flat=True)
 
     class Meta:
         app_label = "repokarma"
