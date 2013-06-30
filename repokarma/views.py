@@ -50,14 +50,6 @@ class Users(ListView):
 class Commit(TemplateView):
     template_name = "changeset.html"
 
-    def get_hg_changeset(self):
-        repo = hg.repository(ui.ui(), settings.REPO_PATH)
-        changeset = repo.changectx(self.rev)
-        diffs = list()
-        for diff in changeset.diff():
-            diffs.append(HGDiff(diff))
-        return changeset, diffs
-
     def get_context_data(self, **kwargs):
         ctx = super(TemplateView, self).get_context_data(**kwargs)
         ctx['changeset'] = models.Commit.objects.get(pk=self.rev)

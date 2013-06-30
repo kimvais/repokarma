@@ -84,7 +84,7 @@ class Commit(models.Model):
 
     def _get_git_changeset(self):
         repo = git.Repo(self.repository.path)
-        self.context = repo
+        self.context = repo.commit(self.pk)
 
     @property
     def diffs(self):
@@ -104,7 +104,15 @@ class Commit(models.Model):
 
     @property
     def files(self):
-        return self.context.files
+        if self.repotype == "mercurial":
+            return self.context.files
+        elif self.repotype == "git":
+            a = set()
+            b = set()
+            for diff in self.context.diff():
+                a.add(diff.a_blob.name)
+                b.add(diff.b_blob.name)
+            return list(a | b)
 
     @property
     def filecount(self):
@@ -112,12 +120,14 @@ class Commit(models.Model):
 
     @property
     def parents(self):
-        if self.repository.repository_type == "mercurial":
+        if self.repotype == "mercurial":
             return [c.hex() for c in self.context.parents()]
+        elif self.repotype == "git":
+            return [c.hexsha for c in self.context.parents]
 
     @property
     def children(self):
-        if self.repository.repository_type == "mercurial":
+        if self.repotype == "mercurial":
             return [c.hex() for c in self.context.children()]
 
     class Meta:
