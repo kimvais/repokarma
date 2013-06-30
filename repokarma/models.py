@@ -88,7 +88,10 @@ class Commit(models.Model):
 
     @property
     def diffs(self):
-        return getattr(self, '_diff_{0}'.format(self.repotype))(self)
+        if self.repotype == "git":
+            return self._diff_git()
+        elif self.repotype == "mercurial":
+            return self._diff_hg()
 
     def _diff_hg(self):
         for diff in self.context.diff():
@@ -110,8 +113,14 @@ class Commit(models.Model):
             a = set()
             b = set()
             for diff in self.context.diff():
-                a.add(diff.a_blob.name)
-                b.add(diff.b_blob.name)
+                try:
+                    a.add(diff.a_blob.name)
+                except AttributeError:
+                    pass
+                try:
+                    b.add(diff.b_blob.name)
+                except AttributeError:
+                    pass
             return list(a | b)
 
     @property
@@ -147,5 +156,5 @@ class GitDiff(object):
     def __init__(self, git_diff):
         self.data = git_diff.diff
         self.cmd = 'n/a'
-        self.filaname = git_diff.a_blob.name
+        self.filename = git_diff.a_blob.name
         self.context = git_diff
