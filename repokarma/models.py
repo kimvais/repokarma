@@ -160,5 +160,10 @@ class GitDiff(object):
     def __init__(self, git_diff):
         self.data = git_diff.diff
         self.cmd = 'n/a'
-        self.filename = git_diff.a_blob.name
+        filenames = set()
+        if git_diff.a_blob is not None:
+            filenames.add(git_diff.a_blob.name)
+        if git_diff.b_blob is not None:
+            filenames.add(git_diff.b_blob.name)
+        self.filename = '+'.join(filenames)
         self.context = git_diff
