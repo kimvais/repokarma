@@ -1,36 +1,209 @@
-{% load staticfiles %}
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>{{ SITENAME }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A calm, blue sky.">
+    <meta name="author" content="Thomas Park">
 
-    <link href="//bootswatch.com/cerulean/bootstrap.css"
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"
           rel="stylesheet">
-            <link rel="stylesheet" type="text/css" href="{% static 'css/pygments_default.css' %}" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"
+          rel="stylesheet">
 
-</head>
-<body>
-<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-<div class="container-fluid">
-                 <div class="demo-headline">
-        <h1 class="demo-logo">
-            Repokarma
-            <small> dashboard for {{ repolocation }}</small>
-        </h1>
-    </div>
+    <link href="//k77.s3.amazonaws.com/css/default.css" rel="stylesheet">
 
+<body
+        id="top"
+        data-spy="scroll"
+        data-target=".subnav"
+        data-offset="80">
 
-    {% block navbar %}
-        <div class="navbar">
-            <div class="navbar-inner">
-                <ul class="nav">
-                    <li><a href="{% url 'log' %}">Changelog</a></li>
+<!-- Navbar
+  ================================================== -->
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="btn btn-navbar"
+               data-toggle="collapse"
+               data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="/">{{ SITENAME }}</a>
+
+            <div class="nav-collapse collapse" id="main-menu">
+                <ul class="nav" id="main-menu-left">
+                    <li><a id="swatch-link" href="{% url 'log' %}">Changelog</a></li>
                     <li><a href="{% url 'users' %}">Users</a></li>
                 </ul>
+                {% comment %}
+                <ul class="nav pull-right" id="main-menu-right">
+                    {% if user.is_authenticated %}
+                        {% with social_auth.associated.0 as socialuser %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    {% if socialuser.provider == "google" %}
+                                        <i class="icon-google-plus-sign"></i> {{ user.email }}
+                                    {% else %}
+                                        <i class="icon-{{ socialuser.provider }}-sign"></i> {{ user.get_full_name }}
+                                    {% endif %}
+                                    <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="{% url 'logout' %}"><i class="icon-large icon-off"></i> Logout</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endwith %}
+                    {% else %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle"
+                               data-toggle="dropdown">Login
+                                <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="{% url "socialauth_begin" "facebook" %}"><i class="icon-fixed-width icon-facebook-sign icon-large"></i>Facebook</a>
+                                </li>
+                                <li>
+                                    <a href="{% url "socialauth_begin" "google" %}"><i class="icon-fixed-width icon-google-plus-sign icon-large"></i>Google</a>
+                                </li>
+                                <li>
+                                    <a href="{% url "socialauth_begin" "twitter" %}"><i class="icon-fixed-width icon-twitter-sign icon-large"></i>Twitter</a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+                    {% endcomment %}
             </div>
-
         </div>
-    {% endblock %}
-    {% block content %}
-    {% endblock %}
+    </div>
 </div>
+
+
+<div class="container-fluid">
+
+
+    <!-- Masthead
+    ================================================== -->
+    <header class="jumbotron subhead" id="overview">
+        <div class="row-fluid">
+            <div class="span9">
+
+                <h1>Repokarma</h1>
+                <p class="lead">dashboard for {{ repolocation }}</p>
+            </div>
+            <div class="span3" id="ads-right-skyscraper">
+                <p class="pull-right">
+                    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                    <!-- 77.fi leaderboard -->
+                    <ins class="adsbygoogle"
+                         style="display:inline-block;width:728px;height:90px"
+                         data-ad-client="ca-pub-9832299036301632"
+                         data-ad-slot="1410285696"></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </p>
+            </div>
+        </div>
+        <div class="subnav">
+            <ul class="nav nav-pills">
+                <li class><a href="https://twitter.com/{{ AUTHOR_NICK }}">
+                    <i class="icon-twitter"></i>
+                    Twitter</a></li>
+                <li class><a href="http://{{ AUTHOR_NICK }}.tumblr.com">
+                    <i class="icon-tumblr"></i>
+                    Blog</a></li>
+                <li class><a href="https://github.com/{{ AUTHOR_NICK }}">
+                    <i class="icon-github"></i>
+                    GitHub</a></li>
+                <li class>
+                    <a href="http://stackoverflow.com/users/180174/kimvais">
+                        <i class="icon-stackexchange"></i>
+                        Stack Overflow</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <div class="container-fluid">
+
+        <div class="span12">
+
+            {% block content %}
+                <!-- beef here -->
+            {% endblock %}
+        </div>
+    </div>
+    <!-- Footer
+     ================================================== -->
+    <hr>
+
+    <footer id="footer">
+        <div class="row-fluid">
+
+            <div class="span5">
+                &copy; {{ COPYRIGHTYEAR }} {{ AUTHOR_NAME }}<br/>
+                Licensed under the
+                <a href="http://opensource.org/licenses/MIT">MIT License</a>.<br/>
+                Powered by
+                <a href="https://www.djangoproject.com/">Django</a><br/>
+            </div>
+            <div class="span2">
+                <script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <!-- 77.fi button -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:125px;height:125px"
+                     data-ad-client="ca-pub-9832299036301632"
+                     data-ad-slot="2887018891"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+            <div class="span5">
+                <p>
+                    Theme made by
+                    <a href="http://thomaspark.me">Thomas Park</a>. Contact him
+                    <a href="mailto:hello@thomaspark.me">hello@thomaspark.me</a>.<br/>
+                    Theme code licensed under the
+                    <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.<br/>
+                    Theme based on
+                    <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.
+                    Icons from
+                    <a href="http://fortawesome.github.com/Font-Awesome/">Font
+                        Awesome</a>. Web fonts from
+                    <a href="http://www.google.com/webfonts">Google</a>.
+                </p>
+            </div>
+        </div>
+        <div class="row-fluid">
+
+            <p class="pull-right"><a href="#top">Back to top</a></p>
+        </div>
+
+    </footer>
+
+</div>
+<!-- /container -->
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//k77.s3.amazonaws.com/js/jquery.smooth-scroll.min.js"></script>
+<script
+        src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="//k77.s3.amazonaws.com/js/bootswatch.js"></script>
+<script src="//k77.s3.amazonaws.com/js/custom.js"></script>
+
+
 </body>
 </html>

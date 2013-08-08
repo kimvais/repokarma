@@ -24,5 +24,8 @@ from django.conf import settings
 
 
 def base(request):
-    context = dict(repolocation=os.path.abspath(settings.REPO_PATH))
+    context = dict(repolocation=os.path.abspath(settings.REPO_PATH),
+                   COPYRIGHTYEAR=2013,
+                   AUTHOR_NICK="kivmais",
+                   AUTHOR_NAME="Kimmo Parviainen-Jalanko")
     return context
