@@ -1,2 +1,6 @@
 Django
 django-infinite-pagination
+mercurial
+GitPython
+South
+django-pygments
